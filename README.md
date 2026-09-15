@@ -1,2 +1,3 @@
 # Growvia
-find the right opportunity, find your gap, fill ur gap
+
+AI-powered platform that matches students with the right opportunities for their growth.
