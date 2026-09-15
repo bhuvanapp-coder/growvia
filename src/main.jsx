@@ -10,8 +10,10 @@ import { OnboardingPage } from './pages/OnboardingPage'
 import { OrganizerPage } from './pages/OrganizerPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { isSupabaseConfigured } from './lib/supabase'
+import { demoStudentDNA, matchOpportunities } from './lib/matching'
 import './styles.css'
 import './dashboard-responsive.css'
+import './matching-ui.css'
 
 function App() {
   const [page, setPage] = useState('Landing')
@@ -19,13 +21,14 @@ function App() {
   const [reminders, setReminders] = useState([])
   const [saved, setSaved] = useState([])
   const [dnaDone, setDnaDone] = useState(false)
+  const [studentDNA, setStudentDNA] = useState(demoStudentDNA)
   const [query, setQuery] = useState('')
-  const filtered = opportunities.filter((item) => `${item.title} ${item.type} ${item.tags.join(' ')}`.toLowerCase().includes(query.toLowerCase()))
+  const filtered = matchOpportunities(studentDNA, opportunities).filter((item) => `${item.title} ${item.type} ${item.tags.join(' ')}`.toLowerCase().includes(query.toLowerCase()))
   const toggle = (setter, id) => setter((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id])
   const openStudent = () => setPage(dnaDone ? 'Dashboard' : 'Onboarding')
 
   if (page === 'Landing') return <LandingPage onStart={openStudent} onOrganizer={() => setPage('Organizer')} />
-  if (page === 'Onboarding') return <OnboardingPage onComplete={(profile) => { if (profile) setDnaDone(true); setPage('Dashboard') }} />
+  if (page === 'Onboarding') return <OnboardingPage onComplete={(profile) => { if (profile) { setStudentDNA(profile); setDnaDone(true) }; setPage('Dashboard') }} />
 
   return <AppShell activePage={page} onNavigate={setPage} savedCount={saved.length}>
     {page === 'Organizer' ? <OrganizerPage onBack={() => setPage('Dashboard')} /> : page === 'Dashboard' ? <DashboardPage items={filtered} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={(id) => toggle(setReminders, id)} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} /> : <StudentView page={page} opportunities={filtered} query={query} setQuery={setQuery} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={(id) => toggle(setReminders, id)} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} />}

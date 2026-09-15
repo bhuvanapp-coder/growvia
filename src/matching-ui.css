@@ -1,0 +1,7 @@
+.match-summary { display: grid; grid-template-columns: 1fr 1.6fr; gap: 10px; margin: 18px 0 22px; padding: 13px; border-radius: 6px; background: #f4f7f1; color: #657269; font-size: 10px; }
+.match-summary b { display: block; color: var(--ink); font: 700 17px Syne; margin-bottom: 3px; }
+.match-loading, .match-error { min-height: 112px; display: flex; align-items: center; justify-content: center; gap: 9px; border-radius: 6px; background: #f7f6f0; color: var(--muted); font-size: 11px; }
+.match-loading svg { color: var(--coral); animation: spin 1s linear infinite; }
+.match-error { color: #b55845; background: #fff0eb; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 560px) { .match-summary { grid-template-columns: 1fr; } }
