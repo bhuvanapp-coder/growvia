@@ -1,8 +1,8 @@
 function daysUntil(deadline) {
   const match = deadline?.match(/([A-Za-z]+)\s+(\d{1,2})/)
   if (!match) return 7
-  const target = new Date(`${match[1]} ${match[2]}, 2026 23:59:59`)
-  return Math.max(1, Math.ceil((target.getTime() - new Date('2026-09-15T12:00:00').getTime()) / 86400000))
+  const target = new Date(`${match[1]} ${match[2]}, 2026 00:00:00`)
+  return Math.max(1, Math.round((target.getTime() - new Date('2026-09-15T00:00:00').getTime()) / 86400000))
 }
 
 function range(start, end) { return start === end ? `Day ${start}` : `Days ${start}–${end}` }

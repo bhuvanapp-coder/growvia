@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowUpRight, CalendarDays, ChevronRight, Lightbulb } from 'lucide-react'
 import { AppShell } from './components/AppShell'
 import { OpportunityCard } from './components/OpportunityCard'
@@ -10,13 +10,14 @@ import { LandingPage } from './pages/LandingPage'
 import { OnboardingPage } from './pages/OnboardingPage'
 import { OrganizerPage } from './pages/OrganizerPage'
 import { DashboardPage } from './pages/DashboardPage'
-import { isSupabaseConfigured } from './lib/supabase'
+import { isSupabaseConfigured, loadReminderIds, removeReminder, saveReminder } from './lib/supabase'
 import { demoStudentDNA, matchOpportunities } from './lib/matching'
 import './styles.css'
 import './dashboard-responsive.css'
 import './matching-ui.css'
 import './organizer.css'
 import './prepare.css'
+import './reminders.css'
 
 function App() {
   const [page, setPage] = useState('Landing')
@@ -27,16 +28,33 @@ function App() {
   const [dnaDone, setDnaDone] = useState(false)
   const [studentDNA, setStudentDNA] = useState(demoStudentDNA)
   const [query, setQuery] = useState('')
+  const [reminderBusy, setReminderBusy] = useState([])
+  const [reminderNotice, setReminderNotice] = useState('')
   const filtered = matchOpportunities(studentDNA, opportunities).filter((item) => `${item.title} ${item.type} ${item.tags.join(' ')}`.toLowerCase().includes(query.toLowerCase()))
+  useEffect(() => { loadReminderIds().then((result) => { if (!result.error) setReminders(result.data) }) }, [])
   const toggle = (setter, id) => setter((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id])
+  const toggleReminder = async (id) => {
+    if (reminderBusy.includes(id)) return
+    const opportunity = opportunities.find((item) => item.id === id)
+    const removing = reminders.includes(id)
+    setReminderNotice('')
+    setReminderBusy((current) => [...current, id])
+    setReminders((current) => removing ? current.filter((item) => item !== id) : [...current, id])
+    const result = removing ? await removeReminder(id) : await saveReminder(opportunity)
+    setReminderBusy((current) => current.filter((item) => item !== id))
+    if (result.error) {
+      setReminders((current) => removing ? [...current, id] : current.filter((item) => item !== id))
+      setReminderNotice('Reminder changes could not be saved. Please try again.')
+    }
+  }
   const openStudent = () => setPage(dnaDone ? 'Dashboard' : 'Onboarding')
 
   if (page === 'Landing') return <LandingPage onStart={openStudent} onOrganizer={() => setPage('Organizer')} />
   if (page === 'Onboarding') return <OnboardingPage onComplete={(profile) => { if (profile) { setStudentDNA(profile); setDnaDone(true) }; setPage('Dashboard') }} />
 
   return <AppShell activePage={page} onNavigate={setPage} savedCount={saved.length}>
-    {page === 'Organizer' ? <OrganizerPage onBack={() => setPage('Dashboard')} /> : page === 'Dashboard' ? <DashboardPage items={filtered} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={(id) => toggle(setReminders, id)} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} /> : <StudentView page={page} opportunities={filtered} query={query} setQuery={setQuery} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={(id) => toggle(setReminders, id)} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} />}
-    {selected && <OpportunityDetails opportunity={selected} onClose={() => setSelected(null)} reminder={reminders.includes(selected.id)} onToggleReminder={() => toggle(setReminders, selected.id)} saved={saved.includes(selected.id)} onToggleSaved={() => toggle(setSaved, selected.id)} onPrepare={() => setPrepareTarget(selected)} />}
+    {page === 'Organizer' ? <OrganizerPage onBack={() => setPage('Dashboard')} /> : page === 'Dashboard' ? <DashboardPage items={filtered} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={toggleReminder} reminderNotice={reminderNotice} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} /> : <StudentView page={page} opportunities={filtered} query={query} setQuery={setQuery} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={toggleReminder} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} />}
+    {selected && <OpportunityDetails opportunity={selected} onClose={() => setSelected(null)} reminder={reminders.includes(selected.id)} onToggleReminder={() => toggleReminder(selected.id)} saved={saved.includes(selected.id)} onToggleSaved={() => toggle(setSaved, selected.id)} onPrepare={() => setPrepareTarget(selected)} />}
     {prepareTarget && <PrepareModal opportunity={prepareTarget} studentDNA={studentDNA} onClose={() => setPrepareTarget(null)} />}
   </AppShell>
 }
