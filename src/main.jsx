@@ -5,6 +5,7 @@ import { AppShell } from './components/AppShell'
 import { OpportunityCard } from './components/OpportunityCard'
 import { OpportunityDetails } from './components/OpportunityDetails'
 import { PrepareModal } from './components/PrepareModal'
+import { ReflectionModal } from './components/ReflectionModal'
 import { opportunities } from './data/opportunities'
 import { LandingPage } from './pages/LandingPage'
 import { OnboardingPage } from './pages/OnboardingPage'
@@ -18,11 +19,13 @@ import './matching-ui.css'
 import './organizer.css'
 import './prepare.css'
 import './reminders.css'
+import './reflection.css'
 
 function App() {
   const [page, setPage] = useState('Landing')
   const [selected, setSelected] = useState(null)
   const [prepareTarget, setPrepareTarget] = useState(null)
+  const [reflectionTarget, setReflectionTarget] = useState(null)
   const [reminders, setReminders] = useState([])
   const [saved, setSaved] = useState([])
   const [dnaDone, setDnaDone] = useState(false)
@@ -53,9 +56,10 @@ function App() {
   if (page === 'Onboarding') return <OnboardingPage onComplete={(profile) => { if (profile) { setStudentDNA(profile); setDnaDone(true) }; setPage('Dashboard') }} />
 
   return <AppShell activePage={page} onNavigate={setPage} savedCount={saved.length}>
-    {page === 'Organizer' ? <OrganizerPage onBack={() => setPage('Dashboard')} /> : page === 'Dashboard' ? <DashboardPage items={filtered} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={toggleReminder} reminderNotice={reminderNotice} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} /> : <StudentView page={page} opportunities={filtered} query={query} setQuery={setQuery} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={toggleReminder} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} />}
+    {page === 'Organizer' ? <OrganizerPage onBack={() => setPage('Dashboard')} /> : page === 'Dashboard' ? <DashboardPage items={filtered} setPage={setPage} setSelected={setSelected} onReflect={setReflectionTarget} reminders={reminders} toggleReminder={toggleReminder} reminderNotice={reminderNotice} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} /> : <StudentView page={page} opportunities={filtered} query={query} setQuery={setQuery} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={toggleReminder} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} />}
     {selected && <OpportunityDetails opportunity={selected} onClose={() => setSelected(null)} reminder={reminders.includes(selected.id)} onToggleReminder={() => toggleReminder(selected.id)} saved={saved.includes(selected.id)} onToggleSaved={() => toggle(setSaved, selected.id)} onPrepare={() => setPrepareTarget(selected)} />}
     {prepareTarget && <PrepareModal opportunity={prepareTarget} studentDNA={studentDNA} onClose={() => setPrepareTarget(null)} />}
+    {reflectionTarget && <ReflectionModal opportunity={reflectionTarget} studentDNA={studentDNA} onClose={() => setReflectionTarget(null)} onComplete={(profile) => { setStudentDNA(profile); setReflectionTarget(null) }} />}
   </AppShell>
 }
 

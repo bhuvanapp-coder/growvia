@@ -65,3 +65,34 @@ export async function removeReminder(opportunityId) {
   const { data, error } = await supabase.from('reminders').delete().eq('user_id', user.id).eq('opportunity_id', opportunityId)
   return { data, error, demo: false }
 }
+
+export async function saveEventReflection(reflection, currentDNA) {
+  const reflectionSignals = {
+    ...(currentDNA?.reflectionSignals || {}),
+    [reflection.opportunityId]: {
+      rating: reflection.rating,
+      skillsUsed: reflection.skillsUsed,
+      learned: reflection.learned,
+      struggledWith: reflection.struggledWith,
+      improve: reflection.improve,
+      attendAgain: reflection.attendAgain,
+    },
+  }
+  const updatedDNA = { ...currentDNA, reflectionSignals }
+  if (!supabase) return { data: reflection, profile: updatedDNA, error: null, demo: true }
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { data: reflection, profile: updatedDNA, error: null, demo: true }
+  const { data, error } = await supabase.from('event_reflections').upsert({
+    user_id: user.id,
+    opportunity_id: reflection.opportunityId,
+    rating: reflection.rating,
+    learned: reflection.learned,
+    struggled_with: reflection.struggledWith,
+    skills_used: reflection.skillsUsed,
+    improve: reflection.improve,
+    attend_again: reflection.attendAgain,
+  }, { onConflict: 'user_id,opportunity_id' }).select().single()
+  if (error) return { data, profile: currentDNA, error, demo: false }
+  const profile = await supabase.from('profiles').upsert({ id: user.id, opportunity_dna: updatedDNA, updated_at: new Date().toISOString() }).select().single()
+  return { data, profile: updatedDNA, error: profile.error, demo: false }
+}
