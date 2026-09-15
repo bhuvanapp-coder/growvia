@@ -23,3 +23,17 @@ export async function saveOpportunityDNA(profile) {
 
   return { data, error, demo: false }
 }
+
+export async function publishOpportunity(opportunity) {
+  if (!supabase) return { data: opportunity, error: null, demo: true }
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { data: opportunity, error: null, demo: true }
+  const { data, error } = await supabase.from('opportunities').insert({
+    ...opportunity,
+    organizer_id: user.id,
+    required_skills: opportunity.requiredSkills,
+    registration_url: opportunity.registrationUrl,
+    published_at: new Date().toISOString(),
+  }).select().single()
+  return { data, error, demo: false }
+}
