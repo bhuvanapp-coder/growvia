@@ -14,6 +14,7 @@ import { demoStudentDNA, matchOpportunities } from './lib/matching'
 import './styles.css'
 import './dashboard-responsive.css'
 import './matching-ui.css'
+import './organizer.css'
 
 function App() {
   const [page, setPage] = useState('Landing')
