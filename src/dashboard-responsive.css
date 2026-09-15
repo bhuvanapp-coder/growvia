@@ -1,0 +1,11 @@
+@media (max-width: 760px) {
+  .dashboard-intro { align-items: start; flex-direction: column; }
+  .dashboard-actions { width: 100%; justify-content: space-between; }
+  .dashboard-radar { min-height: 355px; padding: 25px 22px; align-items: start; }
+  .dashboard-radar-visual { top: 145px; right: 50%; transform: translateX(50%); opacity: .75; }
+  .radar-summary { display: none; }
+  .dashboard-lanes { grid-template-columns: 1fr; }
+  .lane-cards { grid-template-columns: 1fr; }
+  .deadline-grid { grid-template-columns: 1fr; }
+  .deadline-rail-heading { align-items: start; }
+}

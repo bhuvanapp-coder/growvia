@@ -8,8 +8,10 @@ import { opportunities } from './data/opportunities'
 import { LandingPage } from './pages/LandingPage'
 import { OnboardingPage } from './pages/OnboardingPage'
 import { OrganizerPage } from './pages/OrganizerPage'
+import { DashboardPage } from './pages/DashboardPage'
 import { isSupabaseConfigured } from './lib/supabase'
 import './styles.css'
+import './dashboard-responsive.css'
 
 function App() {
   const [page, setPage] = useState('Landing')
@@ -26,7 +28,7 @@ function App() {
   if (page === 'Onboarding') return <OnboardingPage onComplete={(profile) => { if (profile) setDnaDone(true); setPage('Dashboard') }} />
 
   return <AppShell activePage={page} onNavigate={setPage} savedCount={saved.length}>
-    {page === 'Organizer' ? <OrganizerPage onBack={() => setPage('Dashboard')} /> : <StudentView page={page} opportunities={filtered} query={query} setQuery={setQuery} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={(id) => toggle(setReminders, id)} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} />}
+    {page === 'Organizer' ? <OrganizerPage onBack={() => setPage('Dashboard')} /> : page === 'Dashboard' ? <DashboardPage items={filtered} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={(id) => toggle(setReminders, id)} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} /> : <StudentView page={page} opportunities={filtered} query={query} setQuery={setQuery} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={(id) => toggle(setReminders, id)} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} />}
     {selected && <OpportunityDetails opportunity={selected} onClose={() => setSelected(null)} reminder={reminders.includes(selected.id)} onToggleReminder={() => toggle(setReminders, selected.id)} saved={saved.includes(selected.id)} onToggleSaved={() => toggle(setSaved, selected.id)} onPrepare={() => setSelected(null)} />}
   </AppShell>
 }
