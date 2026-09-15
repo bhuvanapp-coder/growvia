@@ -23,7 +23,7 @@ function App() {
   const openStudent = () => setPage(dnaDone ? 'Dashboard' : 'Onboarding')
 
   if (page === 'Landing') return <LandingPage onStart={openStudent} onOrganizer={() => setPage('Organizer')} />
-  if (page === 'Onboarding') return <OnboardingPage onComplete={() => { setDnaDone(true); setPage('Dashboard') }} />
+  if (page === 'Onboarding') return <OnboardingPage onComplete={(profile) => { if (profile) setDnaDone(true); setPage('Dashboard') }} />
 
   return <AppShell activePage={page} onNavigate={setPage} savedCount={saved.length}>
     {page === 'Organizer' ? <OrganizerPage onBack={() => setPage('Dashboard')} /> : <StudentView page={page} opportunities={filtered} query={query} setQuery={setQuery} setPage={setPage} setSelected={setSelected} reminders={reminders} toggleReminder={(id) => toggle(setReminders, id)} saved={saved} toggleSaved={(id) => toggle(setSaved, id)} />}
