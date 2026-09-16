@@ -1,0 +1,13 @@
+import { ArrowRight, Bell, Check, Clock3, MapPin, X } from 'lucide-react'
+import { deadlineInfo } from '../lib/reminders'
+
+export function HomePage({ items, accepted, rejected, reminders, onAccept, onReject, onOpen, onRequestReminder }) {
+  const feed = items.filter((item) => !rejected.includes(item.id) && (item.matchScore ?? item.score ?? 0) >= 45).slice(0, 8)
+  return <div className="page-wrap home-page"><section className="home-heading"><div><div className="eyebrow"><span className="eyebrow-dot" />YOUR PERSONALIZED FEED</div><h1>Opportunities for You</h1><p className="lead">Picked from your skills, interests and goals.</p></div><span className="home-count">{feed.length} matches</span></section><div className="home-feed">{feed.length ? feed.map((item) => <HomeOpportunity key={item.id} item={item} accepted={accepted.includes(item.id)} reminder={reminders.includes(item.id)} onAccept={onAccept} onReject={onReject} onOpen={onOpen} onRequestReminder={onRequestReminder} />) : <div className="home-empty"><h2>Your feed is clear.</h2><p>Explore your rejected opportunities later or tune your Opportunity DNA.</p></div>}</div></div>
+}
+
+function HomeOpportunity({ item, accepted, reminder, onAccept, onReject, onOpen, onRequestReminder }) {
+  const deadline = deadlineInfo(item.deadline)
+  const isReady = (item.matchScore ?? item.score) >= 70
+  return <article className="home-opportunity"><button className="home-opportunity-main" onClick={() => onOpen(item)}><div className="home-opportunity-top"><span>{item.domain || item.type}</span><span><MapPin size={13} />{item.location}</span></div><h2>{item.title}</h2><p>{item.tags.slice(0, 3).join(' · ')}</p><div className="home-match"><strong>{item.matchScore ?? item.score}%</strong><span>Match</span><b className={isReady ? 'ready' : 'building'}>{isReady ? 'You are ready' : `${item.gapCount || 1} capabilities away`}</b></div><div className="home-deadline"><Clock3 size={14} />Deadline: {deadline.isPast ? deadline.label : item.deadline}</div></button><div className="home-actions">{accepted ? <span className="accepted-label"><Check size={14} /> Accepted</span> : <><button className="decision accept" onClick={() => onAccept(item.id)}><Check size={14} /> Accept</button><button className="decision reject" onClick={() => onReject(item.id)}><X size={14} /> Reject</button></>}<button className={reminder ? 'remind-button on' : 'remind-button'} onClick={() => onRequestReminder(item)}><Bell size={14} />{reminder ? 'Reminder Set' : 'Remind Me'}</button><button className="text-button" onClick={() => onOpen(item)}>Details <ArrowRight size={14} /></button></div></article>
+}

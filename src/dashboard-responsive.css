@@ -9,3 +9,5 @@
   .deadline-grid { grid-template-columns: 1fr; }
   .deadline-rail-heading { align-items: start; }
 }
+.growth-chart { display: grid; grid-template-columns: .7fr 1.3fr; gap: 35px; align-items: center; margin-top: 14px; padding: 25px; border: 1px solid var(--line); border-radius: 9px; background: #eef5ed; }.growth-chart h2 { font-size: 22px; margin-top: 8px; }.growth-chart p { color: var(--muted); font-size: 11px; line-height: 1.5; }.growth-bars { display: grid; gap: 13px; }.growth-bars > div { display: grid; gap: 6px; }.growth-bars span { display: flex; justify-content: space-between; color: #53645a; font-size: 10px; }.growth-bars b { color: #4e8a61; }.growth-bars i { display: block; height: 8px; border-radius: 5px; background: #d8e5d8; overflow: hidden; }.growth-bars em { display: block; height: 100%; border-radius: inherit; background: #72a982; }
+@media (max-width: 760px) { .growth-chart { grid-template-columns: 1fr; gap: 18px; } }

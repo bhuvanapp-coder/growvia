@@ -1,0 +1,5 @@
+import { Check, Lightbulb, Target, X } from 'lucide-react'
+
+export function InsightsModal({ opportunity, onClose }) {
+  return <div className="modal-backdrop" onMouseDown={onClose}><div className="insights-modal" onMouseDown={(event) => event.stopPropagation()}><button className="close-button" onClick={onClose}><X size={18} /></button><span className="reflection-icon"><Lightbulb size={20} /></span><div className="eyebrow">AFTER YOUR FEEDBACK</div><h2>What We Learned About You</h2><p className="insights-sub">Your reflection on {opportunity.title} helps tune future recommendations.</p><div className="insight-group"><strong>You seem to enjoy</strong><span><Check size={14} /> Team-based building</span><span><Check size={14} /> Learning by doing</span><span><Check size={14} /> Social impact challenges</span></div><div className="insight-group"><strong>You want to improve</strong><span className="insight-caution"><Target size={14} /> Technical depth</span><span className="insight-caution"><Target size={14} /> Pitching with confidence</span></div><div className="insights-note">Your Opportunity DNA has been updated for future matches.</div></div></div>
+}

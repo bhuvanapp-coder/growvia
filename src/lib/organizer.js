@@ -17,3 +17,9 @@ export async function extractPosterDetails(file) {
   if (!response.ok) throw new Error('Extraction service failed')
   return response.json()
 }
+
+export function createOpportunityDNA(event) {
+  const skills = event.requiredSkills || []
+  const interests = [event.domain, ...(event.description || '').toLowerCase().includes('social') ? ['Social impact'] : []].filter(Boolean)
+  return { technical: skills.filter((skill) => ['Python', 'JavaScript', 'React', 'Machine Learning', 'APIs', 'SQL', 'Git'].some((term) => skill.toLowerCase().includes(term.toLowerCase()))), experience: event.eligibility || 'Beginner-friendly', capabilities: ['Teamwork', 'Problem solving', ...(event.type === 'Hackathon' ? ['Pitching'] : [])], interests }
+}

@@ -1,12 +1,12 @@
 import { AlertCircle, ArrowLeft, ArrowRight, Check, CheckCircle2, FileText, LoaderCircle, Pencil, Plus, Send, Upload, X } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { extractPosterDetails } from '../lib/organizer'
+import { createOpportunityDNA, extractPosterDetails } from '../lib/organizer'
 import { publishOpportunity } from '../lib/supabase'
 
 const fields = [['title', 'Event title'], ['description', 'Description'], ['domain', 'Domain'], ['date', 'Event date'], ['deadline', 'Registration deadline'], ['location', 'Location'], ['eligibility', 'Eligibility'], ['teamSize', 'Team size'], ['prize', 'Prize'], ['registrationUrl', 'Registration URL']]
 const emptyEvent = { title: '', description: '', domain: '', date: '', deadline: '', location: '', eligibility: '', teamSize: '', prize: '', requiredSkills: [], registrationUrl: '' }
 
-export function OrganizerPage({ onBack }) {
+export function OrganizerPage({ onBack, onPublished }) {
   const [stage, setStage] = useState('upload')
   const [event, setEvent] = useState(emptyEvent)
   const [sourceFile, setSourceFile] = useState(null)
@@ -27,7 +27,8 @@ export function OrganizerPage({ onBack }) {
     if (!event.title || !event.description || !event.domain || !event.date || !event.deadline || !event.location || !event.registrationUrl) { setError('Complete the required fields before publishing.'); setStage('review'); return }
     setPublishing(true); setError(''); const result = await publishOpportunity(event); setPublishing(false)
     if (result.error) { setError('Publishing failed. Please check your Supabase connection and try again.'); return }
-    setPublished(true); setStage('published')
+    const publishedEvent = { ...event, opportunityDNA: createOpportunityDNA(event) }
+    setPublished(true); setStage('published'); onPublished?.(publishedEvent)
   }
 
   return <div className="page-wrap organizer-page"><section className="welcome-row"><div><div className="eyebrow">ORGANIZER STUDIO</div><h1>Publish something<br />worth finding.</h1><p className="lead">Upload once. Review what AI found. Publish only when everything looks right.</p></div><button className="button secondary" onClick={onBack}><ArrowLeft size={15} />Back to student view</button></section><div className="organizer-steps">{[['upload', 'Upload poster'], ['extracting', 'AI extraction'], ['review', 'Review details'], ['published', 'Publish']].map(([key, label], index) => <div className={stage === key || (stage === 'manual' && key === 'review') ? 'organizer-step active' : ['review', 'published'].includes(stage) && index < 2 ? 'organizer-step done' : 'organizer-step'} key={key}><span>{['review', 'published'].includes(stage) && index === 0 ? <Check size={13} /> : index + 1}</span>{label}</div>)}</div><div className="organizer-grid"><section className="organizer-panel"><div className="panel-heading"><div><h2>{stage === 'upload' ? 'Start with an event poster' : stage === 'extracting' ? 'Reading your poster' : stage === 'published' ? 'Opportunity published' : stage === 'manual' ? 'Enter event details manually' : 'Review extracted information'}</h2><p>{stage === 'upload' ? 'AI will find the details students need to decide.' : stage === 'extracting' ? 'Finding dates, eligibility, skills, and registration details.' : 'Everything remains editable before it reaches the student radar.'}</p></div><span className="status-badge">{stage === 'published' ? 'Live' : stage === 'manual' ? 'Fallback form' : `Step ${stage === 'upload' ? 1 : stage === 'extracting' ? 2 : 3} of 4`}</span></div>{stage === 'upload' && <UploadStage fileInput={fileInput} processFile={processFile} onManual={() => { setError(''); setEvent(emptyEvent); setStage('manual') }} />} {stage === 'extracting' && <ExtractingStage sourceFile={sourceFile} />} {(stage === 'review' || stage === 'manual') && <ReviewStage event={event} update={update} sourceFile={sourceFile} onPublish={() => setStage('confirm')} onManual={() => setStage('manual')} error={error} />} {stage === 'confirm' && <ConfirmStage event={event} onBack={() => setStage('review')} onPublish={publish} publishing={publishing} />} {stage === 'published' && <PublishedStage event={event} onBack={onBack} />}</section><Checklist stage={stage} published={published} /></div></div>

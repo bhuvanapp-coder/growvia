@@ -1,0 +1,12 @@
+import { ArrowRight, Heart, Star, Target, X } from 'lucide-react'
+
+const grandOpportunities = [
+  { id: 'vit-dream', title: 'VIT Hackathon', tags: ['AI', 'National', 'Offline'], target: 85, gap: ['Machine Learning', 'APIs', 'Pitching'] },
+  { id: 'beahack-dream', title: 'BeaHack', tags: ['Women in tech', 'Innovation', 'National'], target: 85, gap: ['Technical depth', 'Team pitching'] },
+  { id: 'sih-dream', title: 'Smart India Hackathon', tags: ['AI', 'Social impact', 'National'], target: 90, gap: ['ML fundamentals', 'APIs', 'Presentation'] },
+  { id: 'national-ai-dream', title: 'National AI Challenge', tags: ['AI', 'Data', 'Research'], target: 85, gap: ['Advanced ML', 'Technical presentation'] },
+]
+
+export function DreamsPage({ dreams, currentMatch, onToggleDream, onPrepare }) {
+  return <div className="page-wrap dreams-page"><section className="home-heading"><div><div className="eyebrow"><Heart size={13} /> LONG-TERM TARGETS</div><h1>Dream Board</h1><p className="lead">You do not have to be ready today. We will help you get there.</p></div><span className="home-count">{dreams.length} saved</span></section><div className="dream-grid">{grandOpportunities.map((dream) => { const saved = dreams.includes(dream.id); const match = currentMatch(dream); return <article className="dream-card" key={dream.id}><div className="dream-card-top"><span className="dream-stars"><Star size={13} fill="currentColor" /> <Star size={13} fill="currentColor" /> <Star size={13} fill="currentColor" /> <Star size={13} fill="currentColor" /> <Star size={13} fill="currentColor" /></span><button className="dream-remove" onClick={() => onToggleDream(dream.id)} aria-label={saved ? 'Remove dream' : 'Add to dream board'}>{saved ? <X size={16} /> : <Heart size={16} />}</button></div><h2>{dream.title}</h2><p className="dream-tags">{dream.tags.join(' · ')}</p><div className="dream-progress"><span>Current match <b>{match}%</b></span><i><em style={{ width: `${match}%` }} /></i><small>Target: {dream.target}%</small></div><div className="dream-gap"><Target size={15} /><span><strong>{dream.gap.length} capabilities away</strong><small>{dream.gap.join(' · ')}</small></span></div><div className="dream-actions"><button className="button secondary" onClick={() => onPrepare(dream)}><ArrowRight size={14} /> View Path</button>{!saved && <button className="text-button" onClick={() => onToggleDream(dream.id)}>Add to Dream Board</button>}</div></article> })}</div></div>
+}
